@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
-    token = serializers.SerializerMethodField()   # поле только для ответа
+    token = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -20,7 +20,5 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
-        # Токен создастся при первом вызове get_token в сериализации ответа,
-        # но можно создать и здесь для гарантии:
         Token.objects.get_or_create(user=user)
         return user
