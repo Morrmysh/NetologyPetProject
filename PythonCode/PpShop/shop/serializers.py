@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from dj_rest_auth.serializers import PasswordResetSerializer
 
 User = get_user_model()
 
@@ -24,3 +25,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         Token.objects.get_or_create(user=user)
         return user
+
+
+class CustomPasswordResetSerializer(PasswordResetSerializer):
+    def validate_email(self, value):
+        try:
+            validate_email(value)
+            data = {'email__iexact': value}
+        except ValidationError:
+            data = {'username': value}
+
+        try:
+            user = User.objects.get(**data)
+        except User.DoesNotExist:
+            return ''
+
+        return user.email
