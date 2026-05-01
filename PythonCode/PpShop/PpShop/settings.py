@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'shop',
 ]
 
-AUTH_USER_MODEL = 'shop.User'
+AUTH_USER_MODEL = 'shop.CustomUser'
 
 REST_AUTH_SERIALIZERS = {
     'PASSWORD_RESET_SERIALIZER': 'accounts.serializers.LoginOrEmailPasswordResetSerializer',

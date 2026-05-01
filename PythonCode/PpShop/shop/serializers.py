@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from dj_rest_auth.serializers import PasswordResetSerializer
 
+from shop.models import Product
+
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -41,3 +43,11 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
             return ''
 
         return user.email
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'comment', 'owner', 'price', 'available']
+        required_fields = ['name']
+        read_only_fields = ['id', 'owner']
