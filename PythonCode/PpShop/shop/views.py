@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, ListAPIView
 
 from .models import Product
 from .serializers import RegisterSerializer, ProductSerializer
@@ -36,3 +36,8 @@ class MyProductListCreateView(ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+
+class ProductListView(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
