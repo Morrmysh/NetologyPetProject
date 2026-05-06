@@ -36,3 +36,29 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
+
+
+class Parameter(models.Model):
+    name = models.CharField(
+        max_length=200,
+        unique=True,
+    )
+
+
+class ProductParameterValue(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='parameter_values',
+        verbose_name='Товар'
+    )
+    parameter = models.ForeignKey(
+        Parameter,
+        on_delete=models.CASCADE,
+        related_name='product_values',
+        verbose_name='Характеристика'
+    )
+    value = models.CharField(
+        max_length=200,
+        verbose_name='Значение'
+    )

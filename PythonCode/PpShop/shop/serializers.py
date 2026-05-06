@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from dj_rest_auth.serializers import PasswordResetSerializer
 
-from shop.models import Product
+from shop.models import Product, ProductParameterValue, Parameter
 
 User = get_user_model()
 
@@ -45,9 +45,52 @@ class CustomPasswordResetSerializer(PasswordResetSerializer):
         return user.email
 
 
+class OwnerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+
+
+class ParameterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parameter
+        fields = ['id', 'name']
+
+class ProductParameterValueSerializer(serializers.ModelSerializer):
+    parameter_name = serializers.CharField(write_only=True)
+    parameter = ParameterSerializer(read_only=True)
+
+    class Meta:
+        model = ProductParameterValue
+        fields = ['id', 'parameter', 'parameter_name', 'value']
+
+    def create(self, validated_data):
+        name = validated_data.pop('parameter_name')
+        parameter, _ = Parameter.objects.get_or_create(name=name)
+        return ProductParameterValue.objects.create(parameter=parameter, **validated_data)
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    owner = OwnerSerializer(read_only=True)
+    parameter_values = ProductParameterValueSerializer(many=True)
+
     class Meta:
         model = Product
-        fields = ['id', 'name', 'comment', 'owner', 'price', 'available']
-        required_fields = ['name']
-        read_only_fields = ['id', 'owner']
+        fields = ['id', 'name', 'comment', 'price', 'available', 'owner', 'parameter_values']
+        extra_kwargs = {
+            'name': {'required': True}
+        }
+
+    def create(self, validated_data):
+        product_parameter_data = validated_data.pop('parameter_values')
+        product = Product.objects.create(**validated_data)
+
+        for parameter_data in product_parameter_data:
+            name = parameter_data.pop('parameter_name')
+            parameter, _ = Parameter.objects.get_or_create(name=name)
+            ProductParameterValue.objects.create(
+                product=product,
+                parameter=parameter,
+                **parameter_data
+            )
+        return product
