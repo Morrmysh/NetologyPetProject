@@ -45,7 +45,7 @@ class Parameter(models.Model):
     )
 
 
-class ProductParameterValue(models.Model):
+class ParameterValue(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -55,7 +55,7 @@ class ProductParameterValue(models.Model):
     parameter = models.ForeignKey(
         Parameter,
         on_delete=models.CASCADE,
-        related_name='product_values',
+        related_name='product_parameter',
         verbose_name='Характеристика'
     )
     value = models.CharField(
