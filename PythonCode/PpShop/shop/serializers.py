@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from dj_rest_auth.serializers import PasswordResetSerializer
 from django.db import transaction
 
-from shop.models import Product, ParameterValue, Parameter
+from shop.models import Products, ParameterValues, Parameters
 
 User = get_user_model()
 
@@ -54,7 +54,7 @@ class OwnerSerializer(serializers.ModelSerializer):
 
 class ParameterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Parameter
+        model = Parameters
         fields = ['id', 'name']
 
 class ParameterValueSerializer(serializers.ModelSerializer):
@@ -62,13 +62,13 @@ class ParameterValueSerializer(serializers.ModelSerializer):
     parameter = ParameterSerializer(read_only=True)
 
     class Meta:
-        model = ParameterValue
+        model = ParameterValues
         fields = ['id', 'parameter', 'parameter_name', 'value']
 
     def create(self, validated_data):
         name = validated_data.pop('parameter_name')
         parameter, _ = Parameter.objects.get_or_create(name=name)
-        return ParameterValue.objects.create(parameter=parameter, **validated_data)
+        return ParameterValues.objects.create(parameter=parameter, **validated_data)
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class ProductSerializer(serializers.ModelSerializer):
     parameter_values = ParameterValueSerializer(many=True)
 
     class Meta:
-        model = Product
+        model = Products
         fields = ['id', 'name', 'comment', 'price', 'available', 'owner', 'parameter_values']
         extra_kwargs = {
             'name': {'required': True}
@@ -85,12 +85,12 @@ class ProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         with transaction.atomic():
             product_parameter_data = validated_data.pop('parameter_values', [])
-            product = Product.objects.create(**validated_data)
+            product = Products.objects.create(**validated_data)
 
             for parameter_data in product_parameter_data:
                 name = parameter_data.pop('parameter_name')
-                parameter, _ = Parameter.objects.get_or_create(name=name)
-                ParameterValue.objects.create(
+                parameter, _ = Parameters.objects.get_or_create(name=name)
+                ParameterValues.objects.create(
                     product=product,
                     parameter=parameter,
                     **parameter_data

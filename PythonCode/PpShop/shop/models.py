@@ -5,7 +5,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     is_ready_for_orders = models.BooleanField(default=False)
 
-class Product(models.Model):
+class Products(models.Model):
     name = models.CharField(
         max_length=200,
         verbose_name="Название товара"
@@ -38,22 +38,22 @@ class Product(models.Model):
         verbose_name_plural = "Товары"
 
 
-class Parameter(models.Model):
+class Parameters(models.Model):
     name = models.CharField(
         max_length=200,
         unique=True,
     )
 
 
-class ParameterValue(models.Model):
+class ParameterValues(models.Model):
     product = models.ForeignKey(
-        Product,
+        Products,
         on_delete=models.CASCADE,
         related_name='parameter_values',
         verbose_name='Товар'
     )
     parameter = models.ForeignKey(
-        Parameter,
+        Parameters,
         on_delete=models.CASCADE,
         related_name='product_parameter',
         verbose_name='Характеристика'

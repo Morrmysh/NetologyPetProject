@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import ListCreateAPIView, ListAPIView
 
-from .models import Product
+from .models import Products
 from .serializers import RegisterSerializer, ProductSerializer
 
 
@@ -32,12 +32,12 @@ class MyProductListCreateView(ListCreateAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        return Product.objects.filter(owner=self.request.user)
+        return Products.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
 
 class ProductListView(ListAPIView):
-    queryset = Product.objects.all()
+    queryset = Products.objects.all()
     serializer_class = ProductSerializer
